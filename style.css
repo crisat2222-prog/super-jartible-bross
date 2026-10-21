@@ -1,0 +1,131 @@
+:root {
+  --noche: #1e2228;
+  --azulejo: #34578a;
+  --albero: #f08020;
+  --rojo: #c41e3a;
+  --cal: #f5f0d6;
+  box-sizing: border-box;
+}
+*, *::before, *::after { box-sizing: inherit; }
+html, body { height: 100%; margin: 0; }
+
+body {
+  background: var(--noche);
+  color: var(--cal);
+  font-family: "Press Start 2P", "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  display: grid;
+  place-items: center;
+  image-rendering: pixelated;
+}
+
+#app { width: min(96vw, 720px); min-height: 480px; position: relative; }
+.screen { display: none; text-align: center; position: relative; }
+.screen.active { display: block; }
+
+h1 {
+  font-size: clamp(2rem, 9vw, 3.4rem);
+  line-height: 1.2;
+  margin: 2.5rem 0 1rem;
+  color: var(--albero);
+  text-shadow: 4px 4px 0 var(--rojo);
+}
+h2 { font-size: 1rem; color: var(--albero); margin-bottom: 1.5rem; }
+.tag { margin-bottom: 2rem; }
+
+/* Botones */
+.btn {
+  display: block;
+  margin: .8rem auto;
+  font: inherit;
+  color: var(--cal);
+  background: var(--azulejo);
+  border: 0;
+  padding: 1rem 1.6rem;
+  box-shadow: 0 0 0 4px var(--cal), 6px 6px 0 4px #000;
+  cursor: pointer;
+}
+.btn.alt { background: var(--rojo); }
+.btn:hover { background: var(--albero); color: var(--noche); }
+.btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 4px var(--cal); }
+.link {
+  font: inherit; font-size: 10px; color: var(--cal); opacity: .7;
+  background: none; border: 0; margin-top: 1.5rem; cursor: pointer;
+  text-decoration: underline;
+}
+.btn:focus-visible, .link:focus-visible, .world:focus-visible { outline: 3px solid var(--albero); outline-offset: 4px; }
+
+/* Silueta de la Giralda hecha con bloques */
+.skyline { height: 150px; display: flex; justify-content: center; align-items: flex-end; }
+.giralda { display: flex; flex-direction: column-reverse; align-items: center; }
+.giralda i { display: block; background: var(--rojo); }
+.giralda i:nth-child(1) { width: 56px; height: 70px; }
+.giralda i:nth-child(2) { width: 36px; height: 30px; background: var(--albero); }
+.giralda i:nth-child(3) { width: 20px; height: 20px; background: var(--azulejo); }
+.giralda i:nth-child(4) { width: 8px; height: 14px; background: var(--cal); }
+
+/* Historia */
+.dialog {
+  min-height: 260px;
+  padding: 2rem 1.5rem;
+  background: var(--azulejo);
+  box-shadow: 0 0 0 4px var(--cal), 8px 8px 0 4px #000;
+  text-align: left;
+  cursor: pointer;
+}
+.hint { display: block; margin-top: 1.5rem; font-size: 10px; opacity: .7; }
+
+/* Mapa de mundos */
+#world-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; }
+.world {
+  font: inherit; width: 100%; text-align: left; color: var(--cal);
+  background: var(--azulejo); border: 0; padding: 1rem;
+  box-shadow: 0 0 0 4px var(--cal), 5px 5px 0 4px #000; cursor: pointer;
+}
+.world:hover:not(:disabled) { background: var(--albero); color: var(--noche); }
+.world:disabled { background: #2a4044; color: #8c9a9a; box-shadow: 0 0 0 4px #6b7478; cursor: not-allowed; }
+.world.done::after { content: " ★"; color: var(--albero); }
+
+canvas { width: 100%; background: #000; border: 4px solid var(--cal); margin-bottom: 1rem; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Mapa de mundos */
+#mapa { width: 100%; border: 4px solid var(--cal); box-shadow: 6px 6px 0 #000; image-rendering: auto; }
+#simbolos { margin: .6rem 0 1rem; }
+
+/* ===== Pantalla completa ===== */
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body { display: block; background: #14171a; }
+#app { width: 100vw; height: 100vh; min-height: 0; }
+.screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
+[hidden] { display: none !important; }
+
+/* Niveles y mapa: el tamaño lo ajusta main.js para llenar la ventana sin deformar */
+#canvas, #mapa { max-width: none; margin: 0; border: 0; box-shadow: none; }
+#canvas { background: #000; }
+#mapa { image-rendering: auto; }
+#level h2, #level .hint, #btn-win, #worlds h2 { display: none !important; }
+#btn-exit, #btn-title, #simbolos {
+  position: fixed; z-index: 5; margin: 0; padding: .5rem .8rem;
+  background: rgba(20, 23, 26, .78); border: 2px solid var(--cal); opacity: 1; text-decoration: none;
+}
+#btn-exit { top: 10px; right: 10px; }
+#btn-title { bottom: 10px; right: 10px; }
+#simbolos { top: 10px; left: 10px; max-width: 42vw; font-size: 10px !important; text-align: left; line-height: 1.6; }
+
+/* Historia */
+#story .dialog { width: min(90vw, 900px); min-height: 40vh; display: flex; flex-direction: column; justify-content: center; font-size: clamp(12px, 1.8vw, 20px); line-height: 2; }
+
+/* Pantalla de inicio: ilustración horizontal que llena la página */
+#title { position: relative; overflow: hidden; background: #14171a url("imagenes/iniciofondo.jpg") center / cover no-repeat; image-rendering: auto; }
+#title::before { content: none; }
+#title .title-card {
+  position: relative; width: 100%; height: 100%;
+  display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 0 5vw;
+  background: linear-gradient(to right, rgba(20, 23, 26, .9), rgba(20, 23, 26, .55) 26%, rgba(20, 23, 26, 0) 46%);
+}
+#title h1 { font-size: clamp(1.6rem, 4.6vw, 3.6rem); line-height: 1.15; margin: 0 0 1.6rem; text-align: left; text-shadow: 4px 4px 0 #000; }
+#title .btn { margin: .6rem 0; }
+#title .link { margin-left: 0; }
