@@ -58,7 +58,7 @@ function iniciarMundo2(canvas, alGanar) {
   };
   window.addEventListener("keydown", kd);
   canvas.addEventListener("click", clic);
-  let hover = null;
+  let hover = null, ayudaFin = 0; // ayudaFin: hasta cuándo brillan las pistas tras pulsar AYUDA (móvil)
   const mm = (e) => {
     const r = canvas.getBoundingClientRect();
     hover = { x: ((((e.clientX - r.left) / r.width) * W) - ox) / dw, y: (e.clientY - r.top) / r.height };
@@ -96,6 +96,7 @@ function iniciarMundo2(canvas, alGanar) {
     const r = canvas.getBoundingClientRect();
     const cxp = ((e.clientX - r.left) / r.width) * W, mx = (cxp - ox) / dw, my = (e.clientY - r.top) / r.height;
     if (calib) { ultimo = `x: ${mx.toFixed(3)}  y: ${my.toFixed(3)}`; console.log(ultimo); return; }
+    if (TACTIL && estado === "juego" && (fase === "pista" || fase === "resp") && cxp > W - 112 && cxp < W - 8 && my * H > 36 && my * H < 62) { ayudaFin = Date.now() + 3000; return; }
     if (["entrada", "desbloqueada", "secretoOK", "resumen", "final", "gameover"].includes(estado)) { avanzar(); return; }
     if (estado === "juego") {
       const P = PISTAS[paso];
@@ -135,7 +136,12 @@ function iniciarMundo2(canvas, alGanar) {
   }
   function fondo() {
     if (imgOk) {
-      if (dw < W - 1) { ctx.save(); ctx.filter = "blur(14px) brightness(.55)"; ctx.drawImage(img, -20, -20, W + 40, H + 40); ctx.restore(); }
+if (dw < W - 1) {
+        if (TACTIL) { // en móvil: se alarga el borde de la foto (el desenfoque no funciona en todos los móviles y se veía doble)
+          ctx.drawImage(img, 0, 0, 1, img.naturalHeight, 0, 0, ox, H);
+          ctx.drawImage(img, img.naturalWidth - 1, 0, 1, img.naturalHeight, ox + dw, 0, W - ox - dw, H);
+        } else { ctx.save(); ctx.filter = "blur(14px) brightness(.55)"; ctx.drawImage(img, -20, -20, W + 40, H + 40); ctx.restore(); }
+      }
       ctx.drawImage(img, ox, 0, dw, H);
     }
     else { ctx.fillStyle = "#1e2228"; ctx.fillRect(0, 0, W, H); texto(imgErr ? "NO ENCUENTRO imagenes/triana.jpg" : "CARGANDO...", H / 2, "#f5f0d6", 11); }
@@ -188,6 +194,16 @@ function iniciarMundo2(canvas, alGanar) {
         ctx.fillStyle = "rgba(242,201,30,.22)"; ctx.fillRect(x - 5, y - 5, w + 10, h + 10);
         ctx.strokeStyle = `rgba(255,240,150,${al})`; ctx.lineWidth = 3; ctx.strokeRect(x - 5, y - 5, w + 10, h + 10);
       });
+      if (objs && TACTIL) { // en móvil no hay cursor: el botón AYUDA hace brillar lo que hay que pulsar
+        if (a < ayudaFin) objs.forEach((z) => {
+          const [x, y, w, h] = R(z), al = 0.5 + 0.5 * Math.sin(((a % 800) / 800) * Math.PI * 2);
+          ctx.fillStyle = "rgba(242,201,30,.22)"; ctx.fillRect(x - 5, y - 5, w + 10, h + 10);
+          ctx.strokeStyle = `rgba(255,240,150,${al})`; ctx.lineWidth = 3; ctx.strokeRect(x - 5, y - 5, w + 10, h + 10);
+        });
+      ctx.fillStyle = "rgba(30,34,40,.85)"; ctx.fillRect(W - 112, 36, 104, 26);
+      ctx.strokeStyle = "#f5f0d6"; ctx.lineWidth = 2; ctx.strokeRect(W - 112, 36, 104, 26);
+      texto("AYUDA", 54, "#f2c91e", 10, W - 60);
+      }
       if (fase === "brillo") {
         const z = P.lugar[0], p = (a - t0) / 700;
         ctx.fillStyle = `rgba(255,240,150,${0.8 * Math.sin(p * Math.PI * 3) ** 2})`;

@@ -3,6 +3,8 @@
 function iniciarMundo4(canvas, alGanar) {
   canvas.width = 640; canvas.height = 360;
   const ctx = canvas.getContext("2d"), W = canvas.width, H = canvas.height;
+  const TACTIL = window.matchMedia("(pointer: coarse)").matches; // true solo en móvil y tablet
+  let ayudaFin = 0; // hasta cuándo brillan las pistas tras pulsar AYUDA (móvil)
 
   // ============ LAS 7 PISTAS ============
   // Zonas en fracciones de la imagen (0 = izquierda/arriba, 1 = derecha/abajo). Cada pista puede tener varias zonas.
@@ -114,7 +116,8 @@ function iniciarMundo4(canvas, alGanar) {
     else if (estado === "final2") { detener(); alGanar(); }
   }
   function clic(e) {
-    const { fx, fy } = pos(e);
+    const { fx, fy, px, py } = pos(e);
+    if (TACTIL && estado === "juego" && modal < 0 && px > W - 112 && px < W - 8 && py > 34 && py < 62) { ayudaFin = Date.now() + 3000; return; }
     if (calib) { ultimo = `x: ${fx.toFixed(3)}  y: ${fy.toFixed(3)}`; console.log(ultimo); return; }
     if (["entrada", "intro7", "completado", "final1", "final2"].includes(estado)) { avanzar(); return; }
     if (estado === "juego") {
@@ -192,6 +195,12 @@ function iniciarMundo4(canvas, alGanar) {
         texto(PISTAS[i].letra, cy + 5, "#1e2228", 14, cx);
       });
       if (modal < 0 && hover) { const i = pistaEn(hover.x, hover.y); if (i >= 0 && !orden.includes(i)) PISTAS[i].zonas.forEach(brillo); }
+      if (TACTIL && modal < 0) { // en móvil no hay cursor: el botón AYUDA hace brillar lo que aún no has encontrado
+        if (a < ayudaFin) PISTAS.forEach((p, i) => { if (!orden.includes(i)) p.zonas.forEach(brillo); });
+      ctx.fillStyle = "rgba(30,34,40,.85)"; ctx.fillRect(W - 112, 34, 104, 26);
+      ctx.strokeStyle = "#f5f0d6"; ctx.lineWidth = 2; ctx.strokeRect(W - 112, 34, 104, 26);
+      texto("AYUDA", 52, "#f2c91e", 10, W - 60);
+      }
       if (modal >= 0) ventanaPista(modal);
     }
     else if (estado === "intro7") {
