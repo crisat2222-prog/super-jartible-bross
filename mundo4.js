@@ -100,9 +100,9 @@ function iniciarMundo4(canvas, alGanar) {
   };
   window.addEventListener("keydown", kd);
   canvas.addEventListener("click", clic);
-  canvas.addEventListener("mousedown", md);
-  canvas.addEventListener("mousemove", mm);
-  window.addEventListener("mouseup", mu);
+  canvas.addEventListener("pointerdown", md);
+  canvas.addEventListener("pointermove", mm);
+  window.addEventListener("pointerup", mu);
 
   function cerrarModal() { modal = -1; if (orden.length === 7) { estado = "intro7"; prepararPuzzle(); } }
   function avanzar() {
@@ -233,10 +233,10 @@ function iniciarMundo4(canvas, alGanar) {
     cancelAnimationFrame(raf);
     canvas.style.cursor = "default";
     window.removeEventListener("keydown", kd);
-    window.removeEventListener("mouseup", mu);
+    window.removeEventListener("pointerup", mu);
     canvas.removeEventListener("click", clic);
-    canvas.removeEventListener("mousedown", md);
-    canvas.removeEventListener("mousemove", mm);
+    canvas.removeEventListener("pointerdown", md);
+    canvas.removeEventListener("pointermove", mm);
   }
   return detener;
 }

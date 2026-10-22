@@ -21,7 +21,7 @@ const HISTORIA = [
 // ---------- Utilidades ----------
 const $ = (id) => document.getElementById(id);
 const screens = document.querySelectorAll(".screen");
-const show = (id) => { screens.forEach((s) => s.classList.toggle("active", s.id === id)); ajustar(); };
+const show = (id) => { screens.forEach((s) => s.classList.toggle("active", s.id === id)); document.body.dataset.screen = id; ajustar(); };
 
 // Los lienzos llenan la página (el área visible bajo las pestañas) sin deformarse
 function ajustar() {

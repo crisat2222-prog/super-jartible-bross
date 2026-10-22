@@ -58,7 +58,7 @@ function iniciarMundo5(canvas, alGanar) {
     mouse = { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height };
     canvas.style.cursor = hits.some((h) => sobre(h)) ? "pointer" : "default";
   };
-  const clic = () => { const h = hits.find((b) => sobre(b)); if (h) h.fn(); else if (!["inventario", "p1", "brief", "p3", "ultima", "entrada", "reto", "entrevista"].includes(estado)) avanzar(); };
+  const clic = (e) => { mm(e); const h = hits.find((b) => sobre(b)); if (h) h.fn(); else if (!["inventario", "p1", "brief", "p3", "ultima", "entrada", "reto", "entrevista"].includes(estado)) avanzar(); };
   const sobre = (b) => mouse.x >= b.x && mouse.x <= b.x + b.w && mouse.y >= b.y && mouse.y <= b.y + b.h;
   window.addEventListener("keydown", kd);
   canvas.addEventListener("click", clic);

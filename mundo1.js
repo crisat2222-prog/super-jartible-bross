@@ -2,6 +2,7 @@
 // ENTER = avanzar · Clic = responder · C = modo calibración (ver zonas y coordenadas)
 function iniciarMundo1(canvas, alGanar) {
   const ctx = canvas.getContext("2d"), W = canvas.width, H = canvas.height;
+  const TACTIL = window.matchMedia("(pointer: coarse)").matches; // true solo en móvil y tablet
 
   // ============ AJUSTES ============
   const T_OBSERVA = 10, T_BUSCA = 60, PENALIZACION = 5; // segundos
@@ -101,6 +102,7 @@ function iniciarMundo1(canvas, alGanar) {
     const r = canvas.getBoundingClientRect();
     const mx = (e.clientX - r.left) / r.width, my = (e.clientY - r.top) / r.height;
     if (calib) { ultimo = `x: ${mx.toFixed(3)}  y: ${my.toFixed(3)}`; console.log(ultimo); return; }
+    if (TACTIL && ["bienvenida", "instrucciones", "aviso", "tiempo", "tres", "espera", "secretoOK"].includes(estado)) { avanzar(); return; } // en móvil se avanza tocando
     if (estado === "resumen") { avanzar(); return; }
     if (estado === "bonus" && dentro(SECRETO, mx, my, 0.01)) { secreto = true; estado = "secretoOK"; return; }
     if (estado !== "busca" || !zonas) return;

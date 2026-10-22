@@ -3,6 +3,7 @@
 function iniciarMundo2(canvas, alGanar) {
   canvas.width = 640; canvas.height = 360; // 16:9, igual que el resto de mundos
   const ctx = canvas.getContext("2d"), W = canvas.width, H = canvas.height;
+  const TACTIL = window.matchMedia("(pointer: coarse)").matches; // true solo en móvil y tablet
   // La foto de Triana se ve entera (sin recortar) y centrada; a los lados queda un fondo difuminado.
   // Las zonas siguen en fracciones de la foto; R() las pasa a píxeles del lienzo.
   let ox = 0, dw = W; // ox = hueco a la izquierda, dw = ancho con el que se dibuja la foto
@@ -39,7 +40,9 @@ function iniciarMundo2(canvas, alGanar) {
   let estado = "entrada", t0 = 0, paso = 0, fase = "pista";
   let numeros = [], entrada = "", vidas = 3, msgs = [], aviso = "", avisoFin = 0;
   let secreto = false, calib = false, ultimo = "";
-  const BTN = { x: W / 2 - 80, y: H / 2 + 62, w: 160, h: 34 }; // botón ABRIR
+  const BTN = TACTIL ? { x: 70, y: 252, w: 212, h: 38 } : { x: W / 2 - 80, y: H / 2 + 62, w: 160, h: 34 }; // botón ABRIR
+  const TECLAS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "<", "0", "OK"];
+  const tecla = (i) => ({ x: 330 + (i % 3) * 86, y: 90 + Math.floor(i / 3) * 52, w: 80, h: 46 });
 
   function reiniciar() { estado = "juego"; paso = 0; fase = "pista"; numeros = []; entrada = ""; vidas = 3; msgs = []; secreto = false; }
 
@@ -102,7 +105,14 @@ function iniciarMundo2(canvas, alGanar) {
       else if (fase === "pista" || fase === "resp") { aviso = "Nada por aquí..."; avisoFin = Date.now() + 900; }
     } else if (estado === "caja") {
       const px = cxp, py = my * H;
-      if (px > BTN.x && px < BTN.x + BTN.w && py > BTN.y && py < BTN.y + BTN.h && entrada.length === 3) comprobar();
+      const sobreB = (b) => px > b.x && px < b.x + b.w && py > b.y && py < b.y + b.h;
+      if (sobreB(BTN) && entrada.length === 3) comprobar();
+      if (TACTIL) TECLAS.forEach((t, i) => {
+        if (!sobreB(tecla(i))) return;
+        if (t === "<") entrada = entrada.slice(0, -1);
+        else if (t === "OK") { if (entrada.length === 3) comprobar(); }
+        else if (entrada.length < 3) entrada += t;
+      });
     } else if (estado === "secreto" && dentro(SECRETO, mx, my, 0.015)) { secreto = true; estado = "secretoOK"; }
   }
 
@@ -192,6 +202,27 @@ function iniciarMundo2(canvas, alGanar) {
     } else if (estado === "caja") {
       barra();
       ctx.fillStyle = "rgba(0,0,0,.55)"; ctx.fillRect(0, 30, W, H - 30);
+      if (TACTIL) {
+      const x = 40, y = 40, w = 560, h = 290;
+      ctx.fillStyle = "#1e2228"; ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = "#f08020"; ctx.lineWidth = 4; ctx.strokeRect(x, y, w, h);
+      texto("CÓDIGO FINAL", y + 34, "#f08020", 14, 176);
+      for (let i = 0; i < 3; i++) {
+        const sx = 70 + i * 76;
+        ctx.fillStyle = "#34578a"; ctx.fillRect(sx, 100, 60, 70);
+        ctx.strokeStyle = "#f5f0d6"; ctx.lineWidth = 3; ctx.strokeRect(sx, 100, 60, 70);
+        texto(entrada[i] ?? "_", 152, "#f5f0d6", 32, sx + 30);
+      }
+      msgs.forEach((m, i) => texto(m, 200 + i * 18, "#ee3c28", 9, 176));
+      ctx.fillStyle = entrada.length === 3 ? "#c41e3a" : "#6b7478"; ctx.fillRect(BTN.x, BTN.y, BTN.w, BTN.h);
+      texto("ABRIR", BTN.y + 25, "#f5f0d6", 12, BTN.x + BTN.w / 2);
+      TECLAS.forEach((t, i) => { // teclado numérico (sirve con el dedo)
+        const k = tecla(i);
+        ctx.fillStyle = "#34578a"; ctx.fillRect(k.x, k.y, k.w, k.h);
+        ctx.strokeStyle = "#f5f0d6"; ctx.lineWidth = 2; ctx.strokeRect(k.x, k.y, k.w, k.h);
+        texto(t, k.y + 31, "#f5f0d6", 18, k.x + k.w / 2);
+      });
+      } else {
       const x = W / 2 - 170, y = H / 2 - 120, w = 340, h = 250;
       ctx.fillStyle = "#1e2228"; ctx.fillRect(x, y, w, h);
       ctx.strokeStyle = "#f08020"; ctx.lineWidth = 4; ctx.strokeRect(x, y, w, h);
@@ -206,6 +237,7 @@ function iniciarMundo2(canvas, alGanar) {
       ctx.fillStyle = entrada.length === 3 ? "#c41e3a" : "#6b7478"; ctx.fillRect(BTN.x, BTN.y, BTN.w, BTN.h);
       texto("[ ABRIR ]", BTN.y + 22, "#f5f0d6", 12);
       texto("Escribe los 3 números", y + h - 8, "#f5f0d6", 8);
+      }
     }
 
     if (calib) { // zonas en rojo, secreto en amarillo, coordenadas del último clic
